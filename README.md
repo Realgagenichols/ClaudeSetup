@@ -17,8 +17,6 @@ Portable workflow configuration for Claude Code. Includes custom skills, project
 ## What's NOT Included
 
 - Security plugins (data-classification, detect-secrets)
-- Branding commands and assets
-- Zscaler/corporate proxy cert configuration
 - Session data, caches, telemetry
 
 ## Install

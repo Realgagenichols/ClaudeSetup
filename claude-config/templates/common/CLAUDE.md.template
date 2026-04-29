@@ -1,0 +1,45 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## What This Is
+
+{{description}}
+
+## Architecture
+
+<!-- Fill in after SPEC.md is finalized -->
+
+## Spec Format
+
+Requirements use RFC 2119 keywords (SHALL/SHOULD/MAY) with IDs (R1, R2). Each requirement has Given/When/Then scenarios that map directly to test cases. SPEC.md is the single source of truth.
+
+## Key Patterns
+
+- **Secrets**: Use environment variables, not CLI flags
+- **Logging**: `logging` module, never print secrets/PII
+- **Traceability**: Every plan task references a SPEC.md requirement ID. Every test covers a scenario.
+
+## Workflow
+
+- **Task tracking**: Use `tasks/todo.md` only — never TaskCreate/TaskUpdate/TodoWrite
+- **Review pipeline (3 stages, mandatory before presenting work)**:
+  1. Spec-reviewer subagent — "did we build what was asked?"
+  2. `/reviewer` agent (Opus, read-only) — independent quality review
+  3. `/review --fix` — context-aware final gate with auto-fix
+- **Lessons capture**: After ANY user correction, immediately update `tasks/lessons.md`
+- **Lessons inform design**: Read `tasks/lessons.md` during brainstorming and planning phases
+
+## Brownfield Changes
+
+For modifying existing functionality, use change folders:
+1. Create `changes/<change-name>/` with proposal.md, specs/ (delta), design.md
+2. Delta specs use ADDED/MODIFIED/REMOVED sections with RFC 2119 + scenario format
+3. When complete, merge deltas into main SPEC.md
+
+## Files to Know About
+
+- `SPEC.md` — Source of truth (RFC 2119 + Given/When/Then scenarios, IDs: R1, R2...)
+- `tasks/todo.md` — Hierarchical task plan (each task references requirement IDs)
+- `tasks/lessons.md` — Corrections and patterns to avoid (read during design, planning, and review)
+- `changes/` — Brownfield change folders (proposal + delta specs + design + tasks)

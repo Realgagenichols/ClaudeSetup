@@ -1,0 +1,25 @@
+# {{project_name}}
+
+{{description}}
+
+## Setup
+
+```bash
+uv sync
+```
+
+## Usage
+
+```bash
+uv run {{project_name}} --help
+```
+
+## Development
+
+```bash
+# Run tests
+uv run pytest
+
+# Lint
+uv run ruff check .
+```

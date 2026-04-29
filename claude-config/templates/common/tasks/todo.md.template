@@ -1,0 +1,26 @@
+# {{project_name}} — Task Plan
+
+<!-- Each task references the SPEC.md requirement(s) it addresses -->
+
+## 1. Project Setup
+- [ ] 1.1 Initialize project structure — R1, R2, R3
+- [ ] 1.2 Configure dependencies and tooling
+
+## 2. Core Implementation
+- [ ] 2.1 [Primary feature] — R1
+- [ ] 2.2 [Secondary feature] — R2
+- [ ] 2.3 [Supporting feature] — R3
+
+## 3. Testing
+- [ ] 3.1 Tests for R1 scenarios
+- [ ] 3.2 Tests for R2 scenarios
+- [ ] 3.3 Tests for R3 scenarios
+- [ ] 3.4 Edge case and regression tests
+
+## 4. Polish
+- [ ] 4.1 Error handling and input validation
+- [ ] 4.2 README.md with usage examples
+- [ ] 4.3 Linter clean (zero warnings)
+
+## Review
+<!-- Results added after each section -->

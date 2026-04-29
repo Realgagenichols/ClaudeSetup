@@ -1,0 +1,53 @@
+# CLAUDE.md
+
+This file provides guidance to AI coding assistants working with code in this repository.
+
+## What This Is
+
+{{description}}
+
+## Architecture
+
+<!-- Fill in after SPEC.md is finalized -->
+
+## Spec Format
+
+This project uses an OpenSpec-compatible specification format:
+- **Requirements** use RFC 2119 keywords: SHALL (must implement), SHOULD (strongly recommended), MAY (optional)
+- **Requirement IDs** (R1, R2, N1) enable traceability from spec → tasks → tests
+- **Scenarios** use Given/When/Then format and map directly to test cases
+- SPEC.md is the single source of truth for what to build
+
+## Key Patterns
+
+- **Secrets**: Use environment variables, not CLI flags or hardcoded values
+- **Logging**: Structured logging only, never log PII/PCI/secrets
+- **Traceability**: Every task references a requirement ID. Every test covers a scenario.
+
+## Workflow
+
+- **Task tracking**: Use `tasks/todo.md` for planning and progress — do not use built-in task tools (TaskCreate, TaskUpdate, TodoWrite) as they fragment state away from the file-based system. Tasks are hierarchically numbered (1.1, 1.2) and reference requirement IDs.
+- **Before presenting work as complete**:
+  1. Verify all scenario tests pass
+  2. Run an independent code review checking spec compliance, security, test coverage, and code quality
+  3. Run linter with zero errors
+- **Lessons capture**: After any correction, update `tasks/lessons.md` with the pattern so it's not repeated
+- **Lessons inform design**: Read `tasks/lessons.md` before proposing approaches for changes
+
+## Brownfield Changes
+
+For modifying existing functionality, use change folders instead of editing SPEC.md directly:
+1. Create `changes/<change-name>/` with proposal.md, specs/ (delta), design.md
+2. Delta specs use ADDED/MODIFIED/REMOVED sections with the same RFC 2119 + scenario format
+3. When the change is complete and verified, merge deltas into the main SPEC.md
+4. Archive the change folder to `changes/archive/YYYY-MM-DD-<name>/`
+
+See `changes/README.md` for format details and examples.
+
+## Files to Know About
+
+- `SPEC.md` — Source of truth for requirements (RFC 2119 + Given/When/Then scenarios)
+- `tasks/todo.md` — Hierarchical task plan (each task references requirement IDs)
+- `tasks/lessons.md` — Corrections and patterns to avoid
+- `changes/` — Brownfield change folders with delta specs
+- `changes/README.md` — Guide to the change workflow and delta spec format

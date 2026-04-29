@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Ecosystem &mdash; Mindmap</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0f172a;
+            --bg-mid: #1e293b;
+            --accent: #38bdf8;
+            --text: #f1f5f9;
+            --success: #4ade80;
+            --highlight: #bae6fd;
+            --surface-light: #f1f5f9;
+            --surface-mid: #cbd5e1;
+            --text-muted: #94a3b8;
+            --text-subtle: #475569;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-deep);
+            color: var(--text);
+            min-width: 1200px;
+            overflow-x: auto;
+        }
+
+        /* ── Header ── */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            padding: 32px 48px 12px;
+        }
+        .header svg.logo { height: 48px; width: auto; }
+        .header-text h1 {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 97%;
+            letter-spacing: -0.01em;
+            color: var(--text);
+        }
+        .header-text p {
+            font-size: 14px;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+            line-height: 120%;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ── Legend ── */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 12px 48px 8px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ── Mindmap SVG ── */
+        #mindmap-container {
+            width: 100%;
+            padding: 0 16px;
+        }
+        #mindmap {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .link {
+            fill: none;
+            stroke-width: 1.8;
+            opacity: 0.5;
+            transition: opacity 0.3s, stroke-width 0.3s;
+        }
+        .node-dot {
+            cursor: pointer;
+            transition: r 0.3s, filter 0.3s;
+        }
+        .node-dot:hover {
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+        .node-label {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            fill: var(--text);
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .node-label.depth-0 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        .node-label.depth-1 {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+        .node-label.depth-2 {
+            font-size: 11.5px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+        .node-label.depth-3 {
+            font-size: 10px;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+            fill: var(--text-muted);
+        }
+
+        .root-glow {
+            animation: pulse 3s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.15; }
+            50% { opacity: 0.35; }
+        }
+
+        /* ── Tooltip ── */
+        #tooltip {
+            position: fixed;
+            pointer-events: none;
+            background: var(--bg-mid);
+            border: 1px solid rgba(56,189,248,0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            max-width: 320px;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.2s;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        #tooltip.visible { opacity: 1; }
+        #tooltip h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        #tooltip p {
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 150%;
+            color: var(--highlight);
+        }
+        #tooltip .tip-path {
+            font-size: 10px;
+            font-family: monospace;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* ── Divider ── */
+        .divider {
+            height: 1px;
+            margin: 8px 48px 0;
+            background: linear-gradient(90deg, transparent, var(--bg-mid), transparent);
+        }
+
+        /* ── Project Lifecycle Flow ── */
+        .flow-section {
+            padding: 28px 48px 48px;
+        }
+        .flow-title {
+            font-size: 13px;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+        .flow-track {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            position: relative;
+            overflow: visible;
+            padding-bottom: 100px;
+            margin-top: 20px;
+        }
+        .flow-stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 140px;
+            position: relative;
+        }
+        .flow-stage::after {
+            content: '';
+            position: absolute;
+            top: 18px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: var(--bg-mid);
+            z-index: 0;
+        }
+        .flow-stage:last-child::after { display: none; }
+
+        .flow-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--bg-deep);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: default;
+        }
+        .flow-dot:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 20px rgba(56,189,248,0.4);
+        }
+        .flow-label {
+            margin-top: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+            text-align: center;
+            line-height: 120%;
+        }
+        .flow-sub {
+            margin-top: 6px;
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 140%;
+            max-width: 130px;
+        }
+        .flow-tools {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: center;
+        }
+        .flow-tag {
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            padding: 2px 7px;
+            border-radius: 4px;
+            background: rgba(30,41,59,0.5);
+            color: var(--highlight);
+            white-space: nowrap;
+        }
+
+        /* ── Development Cycle ── */
+        .cycle-highlight {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            border: 1px solid rgba(56,189,248,0.12);
+            border-radius: 14px;
+            background: rgba(0, 90, 102, 0.06);
+            pointer-events: none;
+            z-index: -1;
+        }
+        .cycle-label {
+            position: absolute;
+            text-align: center;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(56, 189, 248, 0.55);
+            pointer-events: none;
+        }
+        .loop-svg {
+            position: absolute;
+            left: 0;
+            bottom: 4px;
+            pointer-events: none;
+            overflow: visible;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            padding: 0 48px 32px;
+            font-size: 11px;
+            color: var(--text-subtle);
+            letter-spacing: 0.01em;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-text">
+            <h1>Claude Code Ecosystem</h1>
+            <p>How skills, agents, plugins, hooks, and configuration work together</p>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#60a5fa"></div>Platform</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div>Extensions</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div>Security</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div>Templates & Format</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#4ade80"></div>Custom Skills</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#22d3ee"></div>Superpowers (kept)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f472b6"></div>Review & Agents</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#a3e635"></div>Lessons System</div>
+    </div>
+
+    <!-- Mindmap -->
+    <div id="mindmap-container">
+        <svg id="mindmap"></svg>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider"></div>
+
+    <!-- Project Lifecycle Flow -->
+    <div class="flow-section">
+        <div class="flow-title">Project Lifecycle Flow</div>
+        <div class="flow-track">
+            <div class="flow-stage">
+                <div class="flow-dot" style="background:var(--success)">1</div>
+                <div class="flow-label">/new-project</div>
+                <div class="flow-sub">Scaffold from templates, seed lessons, write initial SPEC.md</div>
+                <div class="flow-tools">
+                    <span class="flow-tag">TEMPLATES</span>
+                    <span class="flow-tag">SPEC.md</span>
+                    <span class="flow-tag">SEED LESSONS</span>
+                </div>
+            </div>
+            <div class="flow-stage">
+                <div class="flow-dot" style="background:var(--success)">2</div>
+                <div class="flow-label">/brainstorm</div>
+                <div class="flow-sub">Read lessons, explore design, update SPEC.md with RFC 2119 + scenarios</div>
+                <div class="flow-tools">
+                    <span class="flow-tag">LESSONS.MD</span>
+                    <span class="flow-tag">RFC 2119</span>
+                    <span class="flow-tag">GIVEN/WHEN/THEN</span>
+                </div>
+            </div>
+            <div class="flow-stage">
+                <div class="flow-dot" style="background:var(--success)">3</div>
+                <div class="flow-label">/plan</div>
+                <div class="flow-sub">Hierarchical tasks in todo.md, every task traces to a requirement ID</div>
+                <div class="flow-tools">
+                    <span class="flow-tag">tasks/todo.md</span>
+                    <span class="flow-tag">R-ID TRACING</span>
+                </div>
+            </div>
+            <div class="flow-stage">
+                <div class="flow-dot" style="background:var(--success)">4</div>
+                <div class="flow-label">/implement</div>
+                <div class="flow-sub">Subagent per task, re-reads lessons before each dispatch, TDD, per-task reviews</div>
+                <div class="flow-tools">
+                    <span class="flow-tag">SUBAGENTS</span>
+                    <span class="flow-tag">TDD</span>
+                    <span class="flow-tag">READS LESSONS</span>
+                    <span class="flow-tag">SPEC REVIEW</span>
+                </div>
+            </div>
+            <div class="flow-stage">
+                <div class="flow-dot" style="background:var(--highlight); color:var(--bg-deep)">5</div>
+                <div class="flow-label">/review</div>
+                <div class="flow-sub">3-stage: spec compliance, /reviewer agent (Opus), /review --fix with auto-repair</div>
+                <div class="flow-tools">
+                    <span class="flow-tag">STAGE 1: SPEC</span>
+                    <span class="flow-tag">STAGE 2: OPUS</span>
+                    <span class="flow-tag">STAGE 3: FIX</span>
+                </div>
+            </div>
+            <div class="flow-stage">
+                <div class="flow-dot" style="background:var(--accent)">6</div>
+                <div class="flow-label">Verify</div>
+                <div class="flow-sub">Evidence before claims, run proof, capture lessons, promote patterns</div>
+                <div class="flow-tools">
+                    <span class="flow-tag">VERIFICATION</span>
+                    <span class="flow-tag">LESSONS CAPTURE</span>
+                </div>
+            </div>
+            <div class="flow-stage">
+                <div class="flow-dot" style="background:var(--success)">7</div>
+                <div class="flow-label">Ship</div>
+                <div class="flow-sub">Merge, PR, or keep branch; promote cross-cutting lessons</div>
+                <div class="flow-tools">
+                    <span class="flow-tag">FINISH BRANCH</span>
+                    <span class="flow-tag">PROMOTE LESSONS</span>
+                </div>
+            </div>
+
+            <!-- Cycle highlight + label (positioned by JS) -->
+            <div class="cycle-highlight" id="cycle-highlight"></div>
+            <div class="cycle-label" id="cycle-label">Development Cycle</div>
+
+            <!-- Loop arrows (drawn by JS) -->
+            <svg class="loop-svg" id="loop-svg"></svg>
+        </div>
+    </div>
+
+    <div class="footer">
+        Claude Code Ecosystem Mindmap
+    </div>
+
+    <!-- Tooltip -->
+    <div id="tooltip">
+        <h3 id="tip-title"></h3>
+        <p id="tip-desc"></p>
+        <div id="tip-path" class="tip-path"></div>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+    (() => {
+        /* ══════════════════════════════════════
+           DATA — Left: platform & infrastructure
+                  Right: workflow & tools
+           ══════════════════════════════════════ */
+
+        const leftBranches = [
+            {
+                name: "Claude Code Platform",
+                color: "#60a5fa",
+                desc: "How Claude Code organizes configuration, extensions, and project context across two scopes",
+                children: [
+                    {
+                        name: "Global Scope (~/.claude/)",
+                        desc: "User-wide configuration that applies to every project and every conversation",
+                        path: "~/.claude/",
+                        children: [
+                            { name: "settings.json", desc: "Model (Opus 4.6 1M), hooks, plugins, permissions, env vars, SSL proxy" },
+                            { name: "CLAUDE.md (global)", desc: "Workflow rules loaded into every conversation \u2014 principles, skill routing, task tracking, review pipeline" },
+                            { name: "skills/", desc: "Custom slash-command skills: brainstorm, plan, implement, review, new-project" },
+                            { name: "agents/", desc: "Custom agent definitions: reviewer (Opus, read-only). Dispatched via Agent tool." },
+                            { name: "plugins/", desc: "Marketplace plugins cached locally: superpowers, frontend-design, skill-creator" },
+                            { name: "commands/", desc: "Simple slash commands from markdown files: lumin-branding" },
+                            { name: "lessons/", desc: "Cross-cutting lessons (8 patterns) seeded into new projects, read by all reviewers" }
+                        ]
+                    },
+                    {
+                        name: "Project Scope (project root)",
+                        desc: "Per-project configuration and artifacts \u2014 overrides and extends global scope",
+                        children: [
+                            { name: "CLAUDE.md (project)", desc: "Project-specific conventions, architecture, review pipeline, spec format \u2014 merged with global CLAUDE.md" },
+                            { name: "SPEC.md", desc: "Source of truth: RFC 2119 requirements (SHALL/SHOULD/MAY) with IDs (R1, S1) and Given/When/Then scenarios" },
+                            { name: "tasks/todo.md", desc: "Hierarchical implementation plan \u2014 every task references requirement IDs" },
+                            { name: "tasks/lessons.md", desc: "Project-specific corrections \u2014 seeded from cross-cutting, updated after every correction/debug" },
+                            { name: "changes/", desc: "Brownfield change folders: proposal.md + delta specs (ADDED/MODIFIED/REMOVED) + design.md" },
+                            { name: ".claude/ (optional)", desc: "Project-level settings.json and commands/ for project-specific overrides" }
+                        ]
+                    },
+                    {
+                        name: "Memory System",
+                        desc: "Persistent file-based memory across conversations \u2014 per-project, survives session boundaries",
+                        path: "~/.claude/projects/*/memory/",
+                        children: [
+                            { name: "User Memories", desc: "Role, expertise, preferences \u2014 tailors collaboration style" },
+                            { name: "Feedback Memories", desc: "Corrections and confirmed approaches \u2014 prevents repeating mistakes" },
+                            { name: "Project Memories", desc: "Ongoing work, deadlines, stakeholders \u2014 broader context" },
+                            { name: "Reference Memories", desc: "Pointers to external systems \u2014 Linear, Grafana, Slack" }
+                        ]
+                    }
+                ]
+            },
+            {
+                name: "Extension System",
+                color: "#a78bfa",
+                desc: "How Claude Code is extended: skills, agents, plugins, commands, MCP servers, and hooks",
+                children: [
+                    {
+                        name: "Skills (~/.claude/skills/)",
+                        desc: "Custom slash-command skills \u2014 SKILL.md defines name, description, allowed tools, and step-by-step process",
+                        children: [
+                            { name: "User-Invocable", desc: "Triggered by /skillname in chat (e.g., /brainstorm, /review)" },
+                            { name: "Tool Constraints", desc: "Each skill declares which tools it can use (Read, Write, Bash, etc.)" },
+                            { name: "Supporting Files", desc: "Skills can include prompt templates, referenced by the main SKILL.md" },
+                            { name: "Precedence", desc: "Custom skills + CLAUDE.md rules take priority over plugin skills" }
+                        ]
+                    },
+                    {
+                        name: "Agents (~/.claude/agents/)",
+                        desc: "Specialized subprocesses with constrained tools \u2014 AGENT.md defines model, tools, and review instructions",
+                        children: [
+                            { name: "Model Selection", desc: "Each agent specifies its model (e.g., opus for maximum reasoning)" },
+                            { name: "Tool Constraints", desc: "Agents can be read-only (Read, Grep, Glob, Bash) or have write access" },
+                            { name: "Dispatched via Agent Tool", desc: "Use subagent_type parameter to dispatch named agents from skills or conversation" }
+                        ]
+                    },
+                    {
+                        name: "Plugins (Marketplace)",
+                        desc: "Installed from marketplaces, cached in ~/.claude/plugins/cache/ \u2014 provide skills and agents",
+                        children: [
+                            { name: "Superpowers v5.0.7", desc: "14 workflow skills (TDD, debugging, verification, git worktrees, etc.) \u2014 3 replaced by custom skills" },
+                            { name: "Frontend Design", desc: "Production-grade UI generation with bold aesthetic choices" },
+                            { name: "Skill Creator", desc: "Create, edit, and measure custom skills with TDD-style verification" }
+                        ]
+                    },
+                    {
+                        name: "Hooks & MCP",
+                        desc: "Event-driven shell commands (hooks) and external tool providers (MCP servers)",
+                        children: [
+                            { name: "PreToolUse Hooks", desc: "Shell scripts that run before specific tool calls (Read, Edit, Bash)" },
+                            { name: "UserPromptSubmit Hooks", desc: "Shell scripts that scan user prompts before submission" },
+                            { name: "MCP Servers", desc: "External tool providers configured in settings.json (IDE integration, custom APIs)" },
+                            { name: "Commands", desc: "Simple markdown files in ~/.claude/commands/ loaded as slash commands (e.g., /lumin-branding)", path: "~/.claude/commands/" }
+                        ]
+                    }
+                ]
+            },
+            {
+                name: "Security Layer",
+                color: "#f87171",
+                desc: "Multi-layered security: pre-tool hooks, secret scanning, permission controls, destructive command guards",
+                children: [
+                    {
+                        name: "Pre-Tool Hooks",
+                        desc: "Shell commands that execute before specific tool calls to enforce security policies",
+                        children: [
+                            { name: "Read \u2192 classify_hook.py", desc: "Data classification script checks files before reading for sensitivity levels" },
+                            { name: "Edit|Write \u2192 detect-secrets.sh", desc: "TruffleHog scans content for API keys, tokens, credentials before any file write" },
+                            { name: "Bash \u2192 Destructive Guard", desc: "Blocks rm -rf and force-push to main/master branches" },
+                            { name: "Prompt \u2192 Credential Block", desc: "UserPromptSubmit hook blocks prompts containing credentials" }
+                        ]
+                    },
+                    {
+                        name: "Permission Deny List",
+                        desc: "Files that Claude Code is never allowed to read or write, defined in settings.json",
+                        children: [
+                            { name: ".env / .pem / .key", desc: "Environment files, certificates, and private keys" },
+                            { name: "Credentials / SSH Keys", desc: "Authentication credentials and SSH key files" },
+                            { name: "AWS Configs", desc: "AWS configuration and credential files" }
+                        ]
+                    }
+                ]
+            },
+            {
+                name: "Templates & Spec Format",
+                color: "#fbbf24",
+                desc: "Three-layer template system with OpenSpec-compatible spec format for team portability",
+                children: [
+                    {
+                        name: "Template Layers",
+                        desc: "Common (shared) + Team (tool-agnostic overlay) + Language (Python/Node) \u2014 composed by /new-project",
+                        path: "~/.claude/templates/",
+                        children: [
+                            { name: "Common", desc: "SPEC.md (RFC 2119), CLAUDE.md (personal), tasks/ \u2014 every project gets these" },
+                            { name: "Team (--team flag)", desc: "Overrides CLAUDE.md with tool-agnostic version, adds changes/ with README" },
+                            { name: "Python", desc: "pyproject.toml (uv/ruff/pytest), src/main.py, tests/conftest.py, .gitignore" }
+                        ]
+                    },
+                    {
+                        name: "OpenSpec Format",
+                        desc: "Spec format compatible with OpenSpec CLI and any AI assistant \u2014 adopted format without the tooling",
+                        children: [
+                            { name: "RFC 2119 Keywords", desc: "SHALL (must, CRITICAL if missing), SHOULD (recommended, WARNING), MAY (optional, INFO)" },
+                            { name: "Given/When/Then Scenarios", desc: "Each requirement has testable scenarios that map directly to test cases" },
+                            { name: "Requirement IDs", desc: "R1, R2, S1, N1 \u2014 enable traceability from spec \u2192 tasks \u2192 tests" },
+                            { name: "Delta Specs (Brownfield)", desc: "ADDED/MODIFIED/REMOVED sections for changes to existing specs" }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        const rightBranches = [
+            {
+                name: "Custom Workflow Skills",
+                color: "#4ade80",
+                desc: "Five custom skills that form the core development chain \u2014 replace superpowers for brainstorming, planning, implementation",
+                children: [
+                    {
+                        name: "/new-project [--team]",
+                        desc: "Scaffolds project from templates, seeds cross-cutting lessons, writes initial SPEC.md interactively",
+                        path: "~/.claude/skills/new-project/SKILL.md",
+                        children: [
+                            { name: "--team Flag", desc: "Tool-agnostic output compatible with any AI assistant and OpenSpec CLI" },
+                            { name: "Template Composition", desc: "Common + team overlay (if --team) + language templates" },
+                            { name: "Lessons Seeding", desc: "Copies cross-cutting patterns from ~/.claude/lessons/ into project's tasks/lessons.md" },
+                            { name: "Interactive SPEC.md", desc: "Asks clarifying questions, writes initial spec draft, gates on user approval" }
+                        ]
+                    },
+                    {
+                        name: "/brainstorm",
+                        desc: "Design exploration that reads lessons first, updates SPEC.md with approved design, supports brownfield change folders",
+                        path: "~/.claude/skills/brainstorm/SKILL.md",
+                        children: [
+                            { name: "Reads Lessons First", desc: "tasks/lessons.md + cross-cutting lessons before any exploration" },
+                            { name: "Hard Gate", desc: "No code until design is presented and user approves" },
+                            { name: "Updates SPEC.md", desc: "Refined requirements with RFC 2119 + Given/When/Then \u2014 not just a separate design doc" },
+                            { name: "Brownfield Support", desc: "Creates change folders with proposal.md + delta specs for existing projects" }
+                        ]
+                    },
+                    {
+                        name: "/plan",
+                        desc: "Creates hierarchical tasks in todo.md \u2014 every task references SPEC.md requirement IDs, reads lessons before planning",
+                        path: "~/.claude/skills/plan/SKILL.md",
+                        children: [
+                            { name: "Reads Lessons First", desc: "Past patterns become specific tasks (e.g., 'test regex collisions')" },
+                            { name: "R-ID Traceability", desc: "Every task references R1, R2, S1 \u2014 if it doesn't map to a requirement, question it" },
+                            { name: "Writes to tasks/todo.md", desc: "Single location for task tracking \u2014 never docs/superpowers/plans/" },
+                            { name: "Self-Review", desc: "Checks every requirement and scenario has a corresponding task" }
+                        ]
+                    },
+                    {
+                        name: "/implement",
+                        desc: "Subagent-driven execution: fresh subagent per task, context-aware prompts, per-task reviews, lessons capture, 3-stage final pipeline",
+                        path: "~/.claude/skills/implement/SKILL.md",
+                        children: [
+                            { name: "Context-Aware Prompts", desc: "CLAUDE.md conventions, SPEC.md R-IDs, lessons, brownfield context baked into every template" },
+                            { name: "Per-Task Reviews", desc: "Spec reviewer (RFC 2119 severity + scenarios) \u2192 Quality reviewer (full checklist)" },
+                            { name: "Lessons Capture", desc: "New patterns captured after each review iteration, not just user corrections" },
+                            { name: "3-Stage Final Pipeline", desc: "After all tasks: spec compliance \u2192 /reviewer agent (Opus) \u2192 /review --fix" }
+                        ]
+                    },
+                    {
+                        name: "/review [--fix]",
+                        desc: "Final review gate: RFC 2119 severity, scenario-level coverage, dynamic lessons, integration/migration/performance checks, re-verify after fix",
+                        path: "~/.claude/skills/review/SKILL.md",
+                        children: [
+                            { name: "RFC 2119 Severity", desc: "SHALL missing = CRITICAL, SHOULD missing = WARNING, MAY missing = INFO" },
+                            { name: "Scenario Coverage", desc: "Each Given/When/Then must have a test \u2014 not just requirement-level checking" },
+                            { name: "Dynamic Lessons", desc: "Reads tasks/lessons.md + cross-cutting.md \u2014 not hardcoded patterns" },
+                            { name: "Full Checklist", desc: "Security, integration, migration, performance, concurrency, code quality" },
+                            { name: "Re-Verify Loop", desc: "After --fix applies changes, re-runs deep review to catch fix-introduced issues" }
+                        ]
+                    }
+                ]
+            },
+            {
+                name: "Kept Superpowers",
+                color: "#22d3ee",
+                desc: "Standalone process skills from superpowers plugin \u2014 used alongside custom skills for discipline",
+                children: [
+                    {
+                        name: "Test-Driven Development",
+                        desc: "TDD iron law: no production code without a failing test first. RED \u2192 GREEN \u2192 REFACTOR cycle.",
+                        children: [
+                            { name: "RED: Write Failing Test", desc: "Test must fail before writing implementation code" },
+                            { name: "GREEN: Minimal Code", desc: "Write just enough code to make the test pass" },
+                            { name: "REFACTOR: Clean Up", desc: "Improve code while keeping tests green" }
+                        ]
+                    },
+                    {
+                        name: "Systematic Debugging",
+                        desc: "Root cause investigation before any fix. 3 failed fixes = question the architecture.",
+                        children: [
+                            { name: "Root Cause First", desc: "Investigate \u2192 hypothesize \u2192 test \u2192 single fix \u2192 verify" },
+                            { name: "Circuit Breaker", desc: "After 3 failed fixes, stop and question the architecture" }
+                        ]
+                    },
+                    {
+                        name: "Other Kept Skills",
+                        desc: "Standalone process skills that work well as-is",
+                        children: [
+                            { name: "Verification Before Completion", desc: "Run the proof, read the output, THEN claim success" },
+                            { name: "Git Worktrees", desc: "Isolated branches with setup verification and test baseline" },
+                            { name: "Finish Branch", desc: "4 options: merge locally, push PR, keep branch, discard" },
+                            { name: "Parallel Agent Dispatch", desc: "2+ independent tasks dispatched simultaneously" },
+                            { name: "Receiving Code Review", desc: "Technical evaluation of feedback, not blind agreement" }
+                        ]
+                    }
+                ]
+            },
+            {
+                name: "Review Pipeline",
+                color: "#f472b6",
+                desc: "3-stage mandatory review before presenting work as complete \u2014 each stage catches different bug classes",
+                children: [
+                    {
+                        name: "Stage 1: Spec Compliance",
+                        desc: "Per-task during /implement + final whole-project pass. RFC 2119 severity, scenario-level checking.",
+                        path: "~/.claude/skills/implement/spec-reviewer-prompt.md",
+                        children: [
+                            { name: "R-ID Verification", desc: "Each requirement ID checked: implemented? Each scenario tested?" },
+                            { name: "RFC 2119 Triage", desc: "Missing SHALL = CRITICAL, missing SHOULD = WARNING, missing MAY = INFO" },
+                            { name: "Scope Drift", desc: "Flags extra/unneeded work beyond what was specified" }
+                        ]
+                    },
+                    {
+                        name: "Stage 2: /reviewer Agent",
+                        desc: "Independent Opus reviewer, read-only, sees code fresh. Reads SPEC.md + lessons dynamically.",
+                        path: "~/.claude/agents/reviewer/AGENT.md",
+                        children: [
+                            { name: "Model: Opus", desc: "Maximum reasoning for code review \u2014 separate agent, not self-review" },
+                            { name: "Read-Only", desc: "Can only Read, Grep, Glob, Bash \u2014 cannot edit, ensuring independence" },
+                            { name: "8 Check Categories", desc: "Spec, patterns, security, tests, integration, migration, performance, quality" }
+                        ]
+                    },
+                    {
+                        name: "Stage 3: /review --fix",
+                        desc: "Context-aware final gate with auto-fix. Reads all project files, runs automated checks, fixes CRITICAL/WARNING.",
+                        path: "~/.claude/skills/review/SKILL.md",
+                        children: [
+                            { name: "Automated Checks", desc: "pytest + ruff (Python) or npm test + eslint (Node) \u2014 detects project type" },
+                            { name: "Auto-Fix", desc: "Applies fixes for CRITICAL and WARNING findings, then re-reviews" },
+                            { name: "Dynamic Lessons", desc: "Reads tasks/lessons.md + cross-cutting.md at review time" }
+                        ]
+                    }
+                ]
+            },
+            {
+                name: "Lessons System",
+                color: "#a3e635",
+                desc: "The mechanism that makes the system get smarter over time \u2014 write, read, promote, seed",
+                children: [
+                    {
+                        name: "Project Lessons",
+                        desc: "Project-specific corrections captured immediately in tasks/lessons.md",
+                        path: "tasks/lessons.md",
+                        children: [
+                            { name: "User Corrections", desc: "After ANY correction, capture the pattern immediately" },
+                            { name: "Debugging Findings", desc: "Root cause patterns from systematic debugging" },
+                            { name: "Review Discoveries", desc: "New patterns found during per-task reviews in /implement" }
+                        ]
+                    },
+                    {
+                        name: "Cross-Cutting Lessons",
+                        desc: "Patterns from all past projects \u2014 the stable canonical location that all tools read from",
+                        path: "~/.claude/lessons/cross-cutting.md",
+                        children: [
+                            { name: "8 Canonical Patterns", desc: "Regex, business logic, context, platform, dependencies, AI, build, UX" },
+                            { name: "Promotion Criteria", desc: "Same pattern in 2+ projects OR generically applicable" },
+                            { name: "Format: Pattern N", desc: "Source project, Rule, Test suggestion \u2014 consistent structure" }
+                        ]
+                    },
+                    {
+                        name: "Lifecycle",
+                        desc: "Lessons flow through the entire development process \u2014 write, read, promote, seed",
+                        children: [
+                            { name: "Read by 7 consumers", desc: "/brainstorm, /plan, /implement, all 3 review stages, implementer prompts" },
+                            { name: "Written by 5 producers", desc: "User corrections, debugging, reviews, implementer reports, promotions" },
+                            { name: "Seeded into new projects", desc: "/new-project copies cross-cutting patterns into tasks/lessons.md" }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        /* ══════════════════════════════════════
+           LAYOUT COMPUTATION
+           ══════════════════════════════════════ */
+
+        const svgW = 1700;
+        const svgH = 1900;
+        const cx = svgW / 2;
+        const cy = svgH / 2;
+        const treeH = 1680;
+        const treeW = 660;
+
+        const leftHierarchy = d3.hierarchy({ name: "root", children: leftBranches });
+        const rightHierarchy = d3.hierarchy({ name: "root", children: rightBranches });
+
+        const treeFn = d3.tree().size([treeH, treeW]).separation((a, b) => {
+            if (a.parent === b.parent) return 1.2;
+            return a.depth === 1 ? 2.2 : 1.8;
+        });
+
+        treeFn(leftHierarchy);
+        treeFn(rightHierarchy);
+
+        leftHierarchy.each(n => {
+            n.sx = cx - n.y - 40;
+            n.sy = (n.x - leftHierarchy.x) + cy;
+        });
+        rightHierarchy.each(n => {
+            n.sx = cx + n.y + 40;
+            n.sy = (n.x - rightHierarchy.x) + cy;
+        });
+
+        leftHierarchy.sx = cx;
+        leftHierarchy.sy = cy;
+        rightHierarchy.sx = cx;
+        rightHierarchy.sy = cy;
+
+        /* ══════════════════════════════════════
+           SVG SETUP
+           ══════════════════════════════════════ */
+
+        const svg = d3.select("#mindmap")
+            .attr("viewBox", `0 0 ${svgW} ${svgH}`)
+            .attr("preserveAspectRatio", "xMidYMid meet");
+
+        const defs = svg.append("defs");
+        const pattern = defs.append("pattern")
+            .attr("id", "grid")
+            .attr("width", 40).attr("height", 40)
+            .attr("patternUnits", "userSpaceOnUse");
+        pattern.append("circle")
+            .attr("cx", 20).attr("cy", 20).attr("r", 0.5)
+            .attr("fill", "rgba(56,189,248,0.08)");
+        svg.append("rect")
+            .attr("width", svgW).attr("height", svgH)
+            .attr("fill", "url(#grid)");
+
+        const glow = defs.append("filter").attr("id", "glow");
+        glow.append("feGaussianBlur").attr("stdDeviation", "4").attr("result", "blur");
+        glow.append("feMerge").selectAll("feMergeNode")
+            .data(["blur", "SourceGraphic"]).join("feMergeNode")
+            .attr("in", d => d);
+
+        function branchColor(node) {
+            let n = node;
+            while (n.depth > 1 && n.parent) n = n.parent;
+            return n.data.color || "#38bdf8";
+        }
+
+        /* ══════════════════════════════════════
+           DRAW LINKS
+           ══════════════════════════════════════ */
+
+        function drawLinks(root, side) {
+            const links = root.links().filter(l => l.source.depth > 0 || l.target.depth > 0);
+            const realLinks = links.map(l => {
+                const src = l.source.depth === 0 ? { sx: cx, sy: cy } : l.source;
+                return { source: src, target: l.target };
+            });
+
+            const linkGroup = svg.append("g").attr("class", `links-${side}`);
+            realLinks.forEach(l => {
+                const s = l.source;
+                const t = l.target;
+                const dx = t.sx - s.sx;
+                const cpOffset = Math.abs(dx) * 0.45;
+
+                const path = side === "left"
+                    ? `M${s.sx},${s.sy} C${s.sx - cpOffset},${s.sy} ${t.sx + cpOffset},${t.sy} ${t.sx},${t.sy}`
+                    : `M${s.sx},${s.sy} C${s.sx + cpOffset},${s.sy} ${t.sx - cpOffset},${t.sy} ${t.sx},${t.sy}`;
+
+                linkGroup.append("path")
+                    .attr("class", "link")
+                    .attr("d", path)
+                    .attr("stroke", branchColor(l.target))
+                    .attr("stroke-width", l.target.depth === 1 ? 2.5 : l.target.depth === 2 ? 1.6 : 1);
+            });
+        }
+
+        drawLinks(leftHierarchy, "left");
+        drawLinks(rightHierarchy, "right");
+
+        /* ══════════════════════════════════════
+           DRAW NODES
+           ══════════════════════════════════════ */
+
+        function drawNodes(root, side) {
+            const nodes = root.descendants().filter(n => n.depth > 0);
+            const nodeGroup = svg.append("g").attr("class", `nodes-${side}`);
+
+            nodes.forEach(n => {
+                const g = nodeGroup.append("g")
+                    .attr("transform", `translate(${n.sx},${n.sy})`);
+
+                const r = n.depth === 1 ? 8 : n.depth === 2 ? 4.5 : 3;
+                const col = branchColor(n);
+
+                g.append("circle")
+                    .attr("class", "node-dot")
+                    .attr("r", r)
+                    .attr("fill", col)
+                    .attr("stroke", col)
+                    .attr("stroke-width", n.depth === 1 ? 2 : 0)
+                    .attr("stroke-opacity", 0.3)
+                    .style("color", col)
+                    .on("mouseenter", (event) => showTooltip(event, n.data))
+                    .on("mousemove", (event) => moveTooltip(event))
+                    .on("mouseleave", hideTooltip);
+
+                const labelOffset = side === "right" ? r + 8 : -(r + 8);
+                const anchor = side === "right" ? "start" : "end";
+
+                g.append("text")
+                    .attr("class", `node-label depth-${n.depth}`)
+                    .attr("x", labelOffset)
+                    .attr("dy", "0.35em")
+                    .attr("text-anchor", anchor)
+                    .text(n.data.name);
+            });
+        }
+
+        drawNodes(leftHierarchy, "left");
+        drawNodes(rightHierarchy, "right");
+
+        /* ══════════════════════════════════════
+           ROOT NODE
+           ══════════════════════════════════════ */
+
+        const rootG = svg.append("g").attr("transform", `translate(${cx},${cy})`);
+
+        rootG.append("circle")
+            .attr("class", "root-glow")
+            .attr("r", 44)
+            .attr("fill", "none")
+            .attr("stroke", "#4ade80")
+            .attr("stroke-width", 1.5);
+
+        rootG.append("circle")
+            .attr("r", 28)
+            .attr("fill", "#0f172a")
+            .attr("stroke", "#4ade80")
+            .attr("stroke-width", 2.5)
+            .attr("filter", "url(#glow)");
+
+        rootG.append("text")
+            .attr("text-anchor", "middle")
+            .attr("dy", "-4")
+            .attr("fill", "#4ade80")
+            .attr("font-size", "10px")
+            .attr("font-weight", "700")
+            .attr("letter-spacing", "0.05em")
+            .text("CLAUDE");
+        rootG.append("text")
+            .attr("text-anchor", "middle")
+            .attr("dy", "10")
+            .attr("fill", "#38bdf8")
+            .attr("font-size", "9px")
+            .attr("font-weight", "600")
+            .attr("letter-spacing", "0.05em")
+            .text("CODE");
+
+        // Side labels — positioned relative to the tree's topmost node
+        const leftTop = Math.min(...leftHierarchy.descendants().filter(n => n.depth > 0).map(n => n.sy));
+        const rightTop = Math.min(...rightHierarchy.descendants().filter(n => n.depth > 0).map(n => n.sy));
+        const labelY = Math.min(leftTop, rightTop) - 24;
+
+        svg.append("text")
+            .attr("x", 40).attr("y", labelY)
+            .attr("fill", "#38bdf8")
+            .attr("font-size", "12px")
+            .attr("font-weight", "600")
+            .attr("letter-spacing", "0.12em")
+            .attr("opacity", "0.7")
+            .text("PLATFORM & INFRASTRUCTURE");
+
+        svg.append("text")
+            .attr("x", svgW - 40).attr("y", labelY)
+            .attr("text-anchor", "end")
+            .attr("fill", "#38bdf8")
+            .attr("font-size", "12px")
+            .attr("font-weight", "600")
+            .attr("letter-spacing", "0.12em")
+            .attr("opacity", "0.7")
+            .text("WORKFLOW, REVIEW & LEARNING");
+
+        /* ══════════════════════════════════════
+           TOOLTIP
+           ══════════════════════════════════════ */
+
+        const tooltip = document.getElementById("tooltip");
+        const tipTitle = document.getElementById("tip-title");
+        const tipDesc = document.getElementById("tip-desc");
+        const tipPath = document.getElementById("tip-path");
+
+        function showTooltip(event, data) {
+            tipTitle.textContent = data.name;
+            tipDesc.textContent = data.desc || "";
+            tipPath.textContent = data.path || "";
+            tipPath.style.display = data.path ? "block" : "none";
+            tipDesc.style.display = data.desc ? "block" : "none";
+            tooltip.classList.add("visible");
+            moveTooltip(event);
+        }
+
+        function moveTooltip(event) {
+            const pad = 16;
+            let x = event.clientX + pad;
+            let y = event.clientY + pad;
+            const rect = tooltip.getBoundingClientRect();
+            if (x + rect.width > window.innerWidth - pad) x = event.clientX - rect.width - pad;
+            if (y + rect.height > window.innerHeight - pad) y = event.clientY - rect.height - pad;
+            tooltip.style.left = x + "px";
+            tooltip.style.top = y + "px";
+        }
+
+        function hideTooltip() {
+            tooltip.classList.remove("visible");
+        }
+
+        /* ══════════════════════════════════════
+           HIGHLIGHT ON HOVER
+           ══════════════════════════════════════ */
+
+        svg.selectAll(".node-dot").on("mouseenter.highlight", function (event) {
+            d3.select(this).transition().duration(200).attr("r", function () {
+                return +d3.select(this).attr("r") * 1.5;
+            });
+        }).on("mouseleave.highlight", function () {
+            const depth = d3.select(this.parentNode).select("text").attr("class").includes("depth-1") ? 1
+                : d3.select(this.parentNode).select("text").attr("class").includes("depth-2") ? 2 : 3;
+            const origR = depth === 1 ? 8 : depth === 2 ? 4.5 : 3;
+            d3.select(this).transition().duration(200).attr("r", origR);
+        });
+
+    })();
+
+    /* ══════════════════════════════════════
+       DEVELOPMENT CYCLE LOOP ARROWS
+       ══════════════════════════════════════ */
+    (function () {
+        const NS = "http://www.w3.org/2000/svg";
+        const loopSvg = document.getElementById("loop-svg");
+        const cycleLabel = document.getElementById("cycle-label");
+        const cycleHighlight = document.getElementById("cycle-highlight");
+        const track = document.querySelector(".flow-track");
+        const stages = track.querySelectorAll(".flow-stage");
+        const dot4 = stages[3].querySelector(".flow-dot");
+        const dot5 = stages[4].querySelector(".flow-dot");
+        const dot6 = stages[5].querySelector(".flow-dot");
+
+        function draw() {
+            loopSvg.innerHTML = "";
+
+            const trackRect = track.getBoundingClientRect();
+            const r4 = dot4.getBoundingClientRect();
+            const r5 = dot5.getBoundingClientRect();
+            const r6 = dot6.getBoundingClientRect();
+
+            // Dot centers relative to track
+            const x4 = r4.left + r4.width / 2 - trackRect.left;
+            const x5 = r5.left + r5.width / 2 - trackRect.left;
+            const x6 = r6.left + r6.width / 2 - trackRect.left;
+
+            // Stage bounding boxes for highlight
+            const s4 = stages[3].getBoundingClientRect();
+            const s6 = stages[5].getBoundingClientRect();
+            const hlLeft = s4.left - trackRect.left - 6;
+            const hlRight = s6.right - trackRect.left + 6;
+
+            // Position cycle highlight background
+            cycleHighlight.style.left = hlLeft + "px";
+            cycleHighlight.style.width = (hlRight - hlLeft) + "px";
+
+            // Position cycle label above the highlight
+            cycleLabel.style.left = hlLeft + "px";
+            cycleLabel.style.width = (hlRight - hlLeft) + "px";
+            cycleLabel.style.top = "-18px";
+
+            // Loop SVG — arcs go below stage content, text stacked below arcs
+            const w = trackRect.width;
+            const h = 84;
+            loopSvg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+            loopSvg.setAttribute("width", w);
+            loopSvg.setAttribute("height", h);
+
+            // ── Inner arc: /review → /implement (smaller, nested inside outer) ──
+            const innerPath = document.createElementNS(NS, "path");
+            innerPath.setAttribute("d",
+                `M ${x5} 4 C ${x5} 30, ${x4 + 4} 30, ${x4 + 4} 4`);
+            innerPath.setAttribute("stroke", "#bae6fd");
+            innerPath.setAttribute("stroke-width", "1.4");
+            innerPath.setAttribute("stroke-dasharray", "4 3");
+            innerPath.setAttribute("stroke-linecap", "round");
+            innerPath.setAttribute("fill", "none");
+            innerPath.setAttribute("opacity", "0.45");
+            loopSvg.appendChild(innerPath);
+
+            const innerArrow = document.createElementNS(NS, "polygon");
+            innerArrow.setAttribute("points",
+                `${x4},8 ${x4 + 4},0 ${x4 + 8},8`);
+            innerArrow.setAttribute("fill", "#bae6fd");
+            innerArrow.setAttribute("opacity", "0.45");
+            loopSvg.appendChild(innerArrow);
+
+            // ── Outer arc: Verify → /implement (larger, wraps inner) ──
+            const outerPath = document.createElementNS(NS, "path");
+            outerPath.setAttribute("d",
+                `M ${x6} 4 C ${x6} 48, ${x4 - 4} 48, ${x4 - 4} 4`);
+            outerPath.setAttribute("stroke", "#38bdf8");
+            outerPath.setAttribute("stroke-width", "1.8");
+            outerPath.setAttribute("stroke-dasharray", "6 4");
+            outerPath.setAttribute("stroke-linecap", "round");
+            outerPath.setAttribute("fill", "none");
+            outerPath.setAttribute("opacity", "0.5");
+            loopSvg.appendChild(outerPath);
+
+            const outerArrow = document.createElementNS(NS, "polygon");
+            outerArrow.setAttribute("points",
+                `${x4 - 8},8 ${x4 - 4},0 ${x4},8`);
+            outerArrow.setAttribute("fill", "#38bdf8");
+            outerArrow.setAttribute("opacity", "0.5");
+            loopSvg.appendChild(outerArrow);
+
+            // ── Labels stacked below both arcs ──
+            const innerText = document.createElementNS(NS, "text");
+            innerText.setAttribute("x", (x4 + x5) / 2);
+            innerText.setAttribute("y", "62");
+            innerText.setAttribute("text-anchor", "middle");
+            innerText.setAttribute("fill", "#bae6fd");
+            innerText.setAttribute("font-size", "9");
+            innerText.setAttribute("font-family", "Inter, system-ui, sans-serif");
+            innerText.setAttribute("font-weight", "600");
+            innerText.setAttribute("letter-spacing", "0.04em");
+            innerText.setAttribute("opacity", "0.45");
+            innerText.textContent = "Per-Task Review Cycle";
+            loopSvg.appendChild(innerText);
+
+            const outerText = document.createElementNS(NS, "text");
+            outerText.setAttribute("x", (x4 + x6) / 2);
+            outerText.setAttribute("y", "76");
+            outerText.setAttribute("text-anchor", "middle");
+            outerText.setAttribute("fill", "#38bdf8");
+            outerText.setAttribute("font-size", "10");
+            outerText.setAttribute("font-family", "Inter, system-ui, sans-serif");
+            outerText.setAttribute("font-weight", "600");
+            outerText.setAttribute("letter-spacing", "0.04em");
+            outerText.setAttribute("opacity", "0.45");
+            outerText.textContent = "Issues Found \u2014 Fix, Re-Review, Capture Lessons";
+            loopSvg.appendChild(outerText);
+        }
+
+        requestAnimationFrame(() => requestAnimationFrame(draw));
+        window.addEventListener("resize", draw);
+    })();
+    </script>
+</body>
+</html>

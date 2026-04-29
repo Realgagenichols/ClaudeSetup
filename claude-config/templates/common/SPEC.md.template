@@ -1,0 +1,95 @@
+# {{project_name}} — Specification
+
+## Purpose
+
+**What:** [One sentence describing what this system does]
+
+**Why:** [Who needs it, what problem it solves, what happens without it]
+
+## Requirements
+
+### Must Have
+
+#### R1: [Requirement name]
+The system SHALL [observable behavior description].
+
+##### Scenario: [Happy path]
+- GIVEN [precondition]
+- WHEN [user action or trigger]
+- THEN [expected outcome]
+- AND [additional assertion]
+
+##### Scenario: [Edge case]
+- WHEN [unusual input or condition]
+- THEN [graceful handling]
+
+#### R2: [Requirement name]
+The system SHALL [observable behavior description].
+
+##### Scenario: [Descriptive name]
+- WHEN [action]
+- THEN [outcome]
+
+#### R3: [Requirement name]
+The system SHALL [observable behavior description].
+
+##### Scenario: [Descriptive name]
+- WHEN [action]
+- THEN [outcome]
+
+### Should Have
+
+#### S1: [Recommended requirement]
+The system SHOULD [behavior description].
+
+##### Scenario: [Descriptive name]
+- WHEN [action]
+- THEN [outcome]
+
+### Nice to Have
+
+#### N1: [Optional feature]
+The system MAY [behavior description].
+
+### Out of Scope
+- [Explicitly excluded feature — prevents scope creep]
+
+## Architecture
+
+### Components
+
+| Module | Responsibility |
+|--------|---------------|
+| `main` | Entry point |
+| | |
+
+### Data Flow
+1. Input: [what comes in]
+2. Processing: [what happens]
+3. Output: [what comes out]
+
+### Key Decisions
+- **Decision:** [choice made]
+  - Why: [reasoning]
+  - Alternative considered: [what was rejected and why]
+
+## Test Strategy
+
+### Scenario Coverage
+Each requirement scenario above maps to at least one test case:
+- [ ] R1 scenarios → `test_[feature].py`
+- [ ] R2 scenarios → `test_[feature].py`
+- [ ] R3 scenarios → `test_[feature].py`
+- [ ] S1 scenarios → `test_[feature].py`
+
+### Regression Patterns
+See `tasks/lessons.md` for full cross-cutting patterns. Common ones to consider:
+- [ ] False positives — valid real-world data that looks like an invalid match
+- [ ] Error handling at boundaries — invalid input produces a clear error, not a silent default
+- [ ] Encoding edge cases — non-ASCII characters, BOM, composed vs decomposed Unicode
+
+### Acceptance Criteria
+- [ ] All scenario tests pass
+- [ ] Linter passes with 0 errors
+- [ ] All **R** requirements checked off with passing scenarios
+- [ ] [Functional criterion specific to this project]
